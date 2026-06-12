@@ -4,7 +4,7 @@ authors = [
     "Elian Neppel",
     "Bach Nguyen",
 ]
-channels = ["conda-forge"]
+channels = ["conda-forge", "robostack-humble"]
 name = "OmniLRS"
 platforms = ["linux-64"]
 version = "0.1.0"
@@ -36,7 +36,7 @@ skyfield = "*"
 zfpy = "*"
 numba = "*"
 gdown = "*"
-em = "*"
+empy = "*"
 lark = "*"
 pandas = "*"
 OmniLRS = { path = ".", editable = true }
@@ -61,11 +61,15 @@ isaacsim = "isaacsim"
 
 # ros2-specific tasks, env variables in feature "ros2"
 [feature.ros2.activation]
-scripts = ["scripts/activate_isaac_ros.sh"]
+scripts = ["scripts/activate_isaac_ros.sh",
+           "scripts/setup_ros2_interfaces.sh"
+  ]
 
 [feature.ros2.activation.env]
 ROS_DISTRO = "humble"
 RMW_IMPLEMENTATION = "rmw_fastrtps_cpp"
+ROS_LOCALHOST_ONLY = ""
+ROS_DOMAIN_ID = ""
 
 [feature.ros2.tasks]
 ros2 = "python run.py mode=ROS2"
@@ -78,7 +82,26 @@ yamcs-client = "*"
 yamcs = "python run.py mode=Yamcs environment=lunaryard_40m_workshop robot=pragyaan controller=pragyaan-controller"
 fix-tmp = "bash scripts/fix_yamcs_tmp.sh"
 
+# custom ros2 interfaces  deps, tasks, env variables in feature "interfaces"
+[feature.interfaces.dependencies]
+colcon-common-extensions = "*"
+ros-humble-ament-cmake = "*"
+ros-humble-ament-lint-auto = "*"
+ros-humble-rosidl-default-generators = "*"
+ros-humble-rosidl-default-runtime = "*"
+ros-humble-ros2interface = "*"
+
+[feature.interfaces.activation.env]
+ROS2_CMAKE_ARGS = "-DPython_EXECUTABLE=$CONDA_PREFIX/bin/python -DPython_NumPy_INCLUDE_DIRS=$CONDA_PREFIX/lib/python3.11/site-packages/numpy/core/include"
+WORKSPACE = "custom_ros2_interfaces"
+
+[feature.interfaces.tasks]
+clean_interfaces = "rm -rf $WORKSPACE/log $WORKSPACE/build $WORKSPACE/install"
+build_interfaces = "colcon --log-base $WORKSPACE/log build --base-paths $WORKSPACE/src --build-base $WORKSPACE/build --install-base $WORKSPACE/install --cmake-args $ROS2_CMAKE_ARGS -Wno-dev"
+
+
 [environments]
 default = { features = ["core", "isaac"] }
 yamcs = { features = ["core", "isaac", "yamcs"] }
 ros2 = { features = ["core", "isaac", "ros2"] }
+interfaces = { features = ["core", "interfaces"] }
