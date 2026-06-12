@@ -62,7 +62,7 @@ isaacsim = "isaacsim"
 # ros2-specific tasks, env variables in feature "ros2"
 [feature.ros2.activation]
 scripts = ["scripts/activate_isaac_ros.sh",
-           "scripts/setup_ros2_interfaces.sh"
+           "scripts/setup_custom_ros2_interfaces.sh"
   ]
 
 [feature.ros2.activation.env]
